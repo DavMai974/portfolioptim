@@ -1,0 +1,11 @@
+service: streaming
+runtime: python313
+instance_class: B1
+
+handlers:
+- url: /.*
+  script: auto
+
+basic_scaling:
+  max_instances: 1
+  idle_timeout: 3m

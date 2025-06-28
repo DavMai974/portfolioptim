@@ -1,0 +1,187 @@
+.gsi-material-button {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -webkit-appearance: none;
+  background-color: WHITE;
+  background-image: none;
+  border: 1px solid #747775;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  cursor: pointer;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 14px;
+  height: 40px;
+  letter-spacing: 0.25px;
+  outline: none;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+  transition: background-color .218s, border-color .218s, box-shadow .218s;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 40px;
+  max-width: 400px;
+  min-width: min-content;
+}
+
+.form-email {
+  display: block;
+  position: relative;
+  left: 25%;
+  width: 300px;
+}
+.form-password {
+  display: block;
+  position: relative;
+  left: 25%;
+  width: 300px;
+}
+.signin-button {
+  display: inline;
+  position: relative;
+  left: 25%;
+  top: 10px;
+}
+.signup-button {
+  display: inline;
+  position: relative;
+  left: 25%;
+  top: 10px;
+}
+.signout-component {
+}
+
+.div-button-signout {
+  position: relative;
+  padding: 14px 16px;
+  background-color: #333;
+  color: white;
+}
+.label-ticker {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.input-stockname {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.label-interval {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.input-interval {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.label-period {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.input-period {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+.submit-stock-search {
+  display: block;
+  position: relative;
+  left: 10%; 
+}
+
+.menu-horyzontal ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+.menu-horyzontal li {
+  float: left;
+}
+.menu-horyzontal  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.menu-horyzontal li a:hover {
+  background-color: #111;
+}
+.menu-vertical-tool {
+  display: flex;
+  align-items: flex-start; /* optionnel : aligne en haut */
+  gap: 20px; /* espace entre les blocs */
+}
+.menu-vertical ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 300px;
+  background-color: #f1f1f1;
+}
+.menu-vertical li button {
+  display: inline;
+  color: #000;
+  text-decoration: none;
+}
+/* Change the link color on hover */
+.menu-vertical li button:hover {
+  background-color: #555;
+  color: white;
+}
+.home-content {
+  display: inline;
+}
+.chartdiv {
+  display: inline /*voir le comportement en enlever cette propriété*/
+}
+
+.div-get-stock {
+  display: inline /*voir le comportement en enlever cette propriété*/
+}
+.wrapper-stock-buttons {
+  display: flex;
+  align-items: flex-start;
+}
+.stock-buttons {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.stock-name-button:after {
+  content: "\00d7"
+}
+.div-portfolio-optim {
+  display: flex;
+}
+.div-portfolio-form {
+  display: inline;
+}
+/* .div-uis-portfolio-optim {
+  display: flex;
+  position: absolute;
+} */
+.div-portfolio-var {
+  display: flex;
+}
+.div-form-var {
+  display: inline;
+}
+.div-user-input-output {
+  display: inline;
+}
+/* .missing-data-message {
+
+} */
