@@ -11,7 +11,7 @@ test-job:
     - python -m pytest
 
 selenium-test-job:
-  stage: test
+  stage: test selenium
   image: python:3.11
   services:
     - name: selenium/standalone-chrome
