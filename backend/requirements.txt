@@ -3,5 +3,6 @@ Flask==3.1.0
 flask-cors==5.0.1
 Flask-WTF==1.2.2
 gunicorn==23.0.0
+pytest==8.4.1
 selenium==4.32.0
 yfinance==0.2.59

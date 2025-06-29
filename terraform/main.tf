@@ -5,7 +5,7 @@ provider "google" {
 
 
 resource "google_app_engine_standard_app_version" "back" {
-  version_id = "v2"
+  version_id = "v1"
   service    = "back"
   runtime    = "python311"
 

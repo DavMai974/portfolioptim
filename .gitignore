@@ -3,3 +3,4 @@ venv/
 dist/
 terraform.tfstate
 __pycache__
+*.zip

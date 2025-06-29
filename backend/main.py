@@ -98,7 +98,7 @@ def pct_change_on_returns(stock_list, start_date, end_date, period=1, freq=None)
             "bool": empty
         })
         if not empty:
-            new_stock_list.append({"name": stock['name']})
+            new_stock_list.append(stock)
     hist = hist[[stock['name'] for stock in missing_data if not stock['bool']]] # remove stocks with no data.
     kwargs = {}
     if freq:
@@ -205,8 +205,8 @@ def value_at_risk():
     start_date = request.json["start_date"]
     end_date = request.json["end_date"]
     stock_list = request.json["stock_list"]
-    stock_returns, missing_data = pct_change_on_returns(stock_list, start_date, end_date, period=period)
-    monthly_returns, missing_data_monthly = pct_change_on_returns(stock_list, start_date, end_date, freq="ME")
+    stock_returns, missing_data, stock_list = pct_change_on_returns(stock_list, start_date, end_date, period=period)
+    monthly_returns, missing_data_monthly, stock_list = pct_change_on_returns(stock_list, start_date, end_date, freq="ME")
     dates = [str(dt) for dt in stock_returns.index]
     monthly_returns_dates = [str(dt) for dt in monthly_returns.index]
     pft_returns = np.zeros(shape=stock_returns.shape[0])
