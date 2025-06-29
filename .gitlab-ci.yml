@@ -1,23 +1,23 @@
 stages:
   - test backend
+  - test selenium
 
 test-job:
   stage: test backend
   image: python:3.11
-  # tags: [build]
   script:
     - cd backend
     - pip install -r requirements.txt
     - python -m pytest
 
-# selenium-test-job:
-#   stage: test
-#   image: python:3.11
-#   services:
-#     - name: selenium/standalone-chrome
-#   script:
-#     - cd selenium_tests
-#     - python -m venv venv
-#     - source venv/bin/activate
-#     - pip install -r requirements.txt
-#     - python -m unittest main.py
+selenium-test-job:
+  stage: test
+  image: python:3.11
+  services:
+    - name: selenium/standalone-chrome
+  script:
+    - cd selenium_tests
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - python -m unittest main.py

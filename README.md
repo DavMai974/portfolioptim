@@ -26,6 +26,8 @@ This step could be automatic if the instance's scaling type was automatic scalin
 
 # CI/CD
 
+Pipeline job are defined in .gitlab-ci.yml.
+
 # Clean up
 
 terraform destroy

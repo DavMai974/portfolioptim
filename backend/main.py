@@ -1,8 +1,7 @@
-from flask import abort, Flask, jsonify, request, redirect, make_response
+from flask import abort, Flask, jsonify, request
 import os
 import datetime
 import numpy as np
-import pandas as pd
 import yfinance as yf
 from flask_cors import CORS
 import time
@@ -14,7 +13,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app = Flask(__name__)
 app_options = {'projectId': 'YOUR_PROJECT_ID'}
 default_app = firebase_admin.initialize_app(options=app_options)
-CORS(app, origins=["https://YOUR_PROJECT_ID.wl.r.appspot.com"], 
+CORS(app, origins=["https://YOUR_PROJECT_ID.wl.r.appspot.com", "http://localhost:8001"], 
     supports_credentials=True) # Access-Control-Allow-Credentials to True (A priori inutile car correspondrai au header Credentials déjà défini ici).
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2, x_host=2) # we need to tell werkzeug that gcp has 2 proxies: google frontend and load balancer.
 
@@ -37,11 +36,37 @@ def refresh_token(id_token: str) -> str:
         return abort(401, 'Invalid ID token.')
     return session_cookie, expires
 
+def verify_or_refresh_token(request):
+    """For local dev purpose, when LOCALHOST is '1' then refresh_session_cookie is always False."""
+    refresh_session_cookie = False
+    session_cookie = None
+    expires = None
+    if not os.environ.get("LOCALHOST"):
+        id_token = request.json["id_token"]
+        session_cookie = request.cookies.get('session')
+        if not session_cookie:
+            return jsonify({'status': 'error', 'message': 'No session cookie.'}), 401
+        # Verify the session cookie. In this case an additional check is added to detect
+        # if the user's Firebase session was revoked, user deleted/disabled, etc.
+        try:
+            decoded_claims = auth.verify_session_cookie(session_cookie, check_revoked=True)
+        except auth.InvalidSessionCookieError:
+            # Session cookie is invalid, expired or revoked.
+            session_cookie, expires = refresh_token(id_token)
+            refresh_session_cookie = True
+        except auth.RevokedIdTokenError:
+            return jsonify({'status': 'error', 'message': 'Token revoked, inform the user to reauthenticate or signOut().'}), 401
+        except auth.UserDisabledError:
+            return jsonify({'status': 'error', 'message': 'Token belongs to a disabled user record.'}), 401
+        except auth.InvalidIdTokenError:
+            return jsonify({'status': 'error', 'message': 'Token is invalid'}), 401
+    return refresh_session_cookie, {"cookie": session_cookie, "expires": expires}
+
 @app.route("/api/session_login", methods=["POST"])
 def session_login():
     id_token = request.json["id_token"]
     try:
-        decoded_claims = auth.verify_id_token(id_token, clock_skew_seconds=30)
+        decoded_claims = auth.verify_id_token(id_token, clock_skew_seconds=60)
         if time.time() - decoded_claims["auth_time"] < 5 * 60:
             # Create the session cookie. This will also verify the ID token in the process.
             # The session cookie will have the same claims as the ID token.
@@ -111,27 +136,10 @@ def pct_change_on_returns(stock_list, start_date, end_date, period=1, freq=None)
 
 @app.route("/api/get_portfolio_optim", methods=["POST"])
 def get_portfolio_optim():
-    refresh_session_cookie = False
-    if not os.environ.get("LOCALHOST"):
-        id_token = request.json["id_token"]
-        session_cookie = request.cookies.get('session')
-        if not session_cookie:
-            return jsonify({'status': 'error', 'message': 'No session cookie.'}), 401
-        # Verify the session cookie. In this case an additional check is added to detect
-        # if the user's Firebase session was revoked, user deleted/disabled, etc.
-        try:
-            decoded_claims = auth.verify_session_cookie(session_cookie, check_revoked=True)
-        except auth.InvalidSessionCookieError:
-            # Session cookie is invalid, expired or revoked.
-            session_cookie, expires = refresh_token(id_token)
-            refresh_session_cookie = True
-        except auth.RevokedIdTokenError:
-            return jsonify({'status': 'error', 'message': 'Token revoked, inform the user to reauthenticate or signOut().'}), 401
-        except auth.UserDisabledError:
-            return jsonify({'status': 'error', 'message': 'Token belongs to a disabled user record.'}), 401
-        except auth.InvalidIdTokenError:
-            return jsonify({'status': 'error', 'message': 'Token is invalid'}), 401
-    
+    try:
+        refresh_session_cookie, cookie_info = verify_or_refresh_token(request)
+    except Exception as exc:
+        raise Exception from exc 
     period = int(request.json["period"])
     stock_list = request.json["stock_list"]
     risk_free_rate = float(request.json["risk_free_rate"])
@@ -182,24 +190,15 @@ def get_portfolio_optim():
     response = jsonify({"data": data})
     if refresh_session_cookie:
         response.set_cookie(
-            'session', session_cookie, expires=expires, httponly=True, secure=True, samesite="none")
+            'session', cookie_info["cookie"], expires=cookie_info["expires"], httponly=True, secure=True, samesite="none")
     return response, 200
 
 @app.route("/api/value_at_risk", methods=["POST"])
 def value_at_risk():
-    id_token = request.json["id_token"]
-    session_cookie = request.cookies.get('session')
-    refresh_session_cookie = False
-    if not session_cookie:
-        return jsonify({'status': 'error', 'message': 'No session cookie.'}), 401
-    # Verify the session cookie. In this case an additional check is added to detect
-    # if the user's Firebase session was revoked, user deleted/disabled, etc.
     try:
-        decoded_claims = auth.verify_session_cookie(session_cookie, check_revoked=True)
-    except auth.InvalidSessionCookieError:
-        # Session cookie is invalid, expired or revoked.
-        session_cookie, expires = refresh_token(id_token)
-        refresh_session_cookie = True
+        refresh_session_cookie, cookie_info = verify_or_refresh_token(request)
+    except Exception as exc:
+        raise Exception from exc
     period = int(request.json["period"])
     alpha = float(request.json["alpha"])
     start_date = request.json["start_date"]
@@ -236,7 +235,7 @@ def value_at_risk():
     response = jsonify({"data": data})
     if refresh_session_cookie:
         response.set_cookie(
-            'session', session_cookie, expires=expires, httponly=True, secure=True, samesite="none")
+            'session', cookie_info["cookie"], expires=cookie_info["expires"], httponly=True, secure=True, samesite="none")
     return response
 
 @app.route("/api/get_stock", methods=["POST"])
