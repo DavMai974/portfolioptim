@@ -514,12 +514,12 @@ function Streaming() {
 function Contact() {
   function handleOpenContact(event: any) {
     event.preventDefault()
-    window.open("https://www.linkedin.com/in/david-m-53ab40165", '_blank')?.focus();
+    window.open("fake_url", '_blank')?.focus();
     return;
   }
   return (
     <div>
-      <a href="www.linkedin.com/in/david-m-53ab40165" onClick={handleOpenContact}>David M.</a>
+      <a href="fake_url" onClick={handleOpenContact}>David M.</a>
     </div>
   )
 }
